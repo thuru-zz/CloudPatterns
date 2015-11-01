@@ -17,12 +17,9 @@ namespace CacheAsidePatternWebTemplate.Service
             _cacheProvider = provider;
         }
 
-        public async Task<Product> CreateProudctAsync(Product product)
+        public Task<Product> CreateProudctAsync(Product product)
         {
-            // save product in the data store
-
-            await _cacheProvider.SetCollectionAsync(product.CacheKey, new List<Product>() { product });
-            return product;
+            throw new NotImplementedException();
         }
 
         public Task<Product> GetProductByIdAsync()

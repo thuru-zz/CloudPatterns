@@ -14,6 +14,8 @@ namespace CacheAsidePatternWebTemplate
 {
     public class Global : HttpApplication
     {
+        private CacheProvider<ICacheable> _cacheProvider;
+
         void Application_Start(object sender, EventArgs e)
         {
             AreaRegistration.RegisterAllAreas();
@@ -25,7 +27,14 @@ namespace CacheAsidePatternWebTemplate
 
         void PrimeCache()
         {
-            
+            // get data to prime the cache
+            var topProducts = new List<ICacheable>()
+            {
+                new Product() {  }
+            };
+
+            _cacheProvider = new AzureRedisCacheProvider("<connection string", StackExchange.Redis.CommandFlags.HighPriority);
+            _cacheProvider.SetCollectionAsync("top-products", topProducts).GetAwaiter().GetResult();
         }
     }
 }

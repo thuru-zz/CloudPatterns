@@ -9,5 +9,6 @@ namespace CacheAsidePatternWebTemplate.Controllers
 {
     public class ProductController : ApiController
     {
+        
     }
 }

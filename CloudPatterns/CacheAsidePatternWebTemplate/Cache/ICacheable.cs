@@ -8,7 +8,5 @@ namespace CacheAsidePatternWebTemplate.Cache
 {
     public interface ICacheable
     {
-        string CacheKey { get; set; }
-        double ? LifeTime { get; set; }
     }
 }

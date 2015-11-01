@@ -129,11 +129,12 @@
     <Compile Include="Cache\AzureRedisCacheProvider.cs" />
     <Compile Include="Cache\CacheProvderException.cs" />
     <Compile Include="Cache\CacheProvider.cs" />
+    <Compile Include="Cache\ICacheable.cs" />
+    <Compile Include="Cache\InMemoryCacheProvider.cs" />
     <Compile Include="Controllers\ProductController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Cache\ICacheable.cs" />
     <Compile Include="Models\Product.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Service\IProductService.cs" />

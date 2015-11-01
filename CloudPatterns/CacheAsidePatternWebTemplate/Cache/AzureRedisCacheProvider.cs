@@ -26,18 +26,18 @@ namespace CacheAsidePatternWebTemplate.Cache
             _cachingStrategy = cachingStrategy;
         }
 
-        public override async Task<bool> SetItemAsync(string key, ICacheable value)
+        public override async Task<bool> SetItemAsync(string key, ICacheable value, double? time = default(double?))
         {
             var jsonObject = JsonConvert.SerializeObject(value);
-           
-            if (value.LifeTime.HasValue)
+
+            if (time == null)
             {
-                return await _cache.StringSetAsync(key, jsonObject, TimeSpan.FromMinutes(value.LifeTime.Value), When.Always, 
-                    _cachingStrategy);
+                return await _cache.StringSetAsync(key, jsonObject, null, When.Always, _cachingStrategy);
             }
             else
             {
-                return await _cache.StringSetAsync(key, jsonObject, null, When.Always, _cachingStrategy);
+                return await _cache.StringSetAsync(key, jsonObject, TimeSpan.FromSeconds(time.Value), When.Always,
+                    _cachingStrategy);
             }
         }
 
@@ -48,25 +48,13 @@ namespace CacheAsidePatternWebTemplate.Cache
             {
                 return JsonConvert.DeserializeObject<ICacheable>(data);
             }
-            return null;
+            throw new CacheProvderException("Not found or value null");
         }
 
-        public override Task<List<ICacheable>> GetCollectionForKeyAsync(string key)
-        {
-            throw new NotImplementedException();
-        }
-
-        
-
-        public override Task<bool> InvalidateItemAsync(string key)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override async Task<bool> SetCollectionAsync(string key, List<ICacheable> values)
+        public override async Task<bool> SetCollectionAsync(string key, List<ICacheable> values, double? time = default(double?), int? length = default(int?))
         {
             if (values == null)
-                throw new CacheProvderException("Value Null Exceptipn");
+                throw new CacheProvderException("Collection cannot be null");
 
             try
             {
@@ -78,12 +66,34 @@ namespace CacheAsidePatternWebTemplate.Cache
                 }
 
                 await _cache.ListLeftPushAsync(key, redisValues.ToArray(), _cachingStrategy);
+
+                if (length != null)
+                    await _cache.ListTrimAsync(key, 0, length.Value, CommandFlags.FireAndForget);
+
                 return true;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
+        }
+
+        public override async Task<List<ICacheable>> GetCollectionForKeyAsync(string key)
+        {
+            var data = await _cache.ListRangeAsync(key, 0, -1, _cachingStrategy);
+            var result = new List<ICacheable>();
+
+            foreach (var item in data)
+            {
+                result.Add(JsonConvert.DeserializeObject<ICacheable>(item.ToString()));
+            }
+
+            return result;
+        }
+
+        public override async Task<bool> InvalidateItemAsync(string key)
+        {
+            return await _cache.KeyDeleteAsync(key, CommandFlags.FireAndForget);
         }
     }
 }
